@@ -1,14 +1,35 @@
 function v --argument command session_name new_session_name --description "Manage vim session files"
-    function __v_list_sessions
-        fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
-    end
-    function __v_list_session_dirs
-        fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
-    end
+    set --local v_version 0.1
+
     set --query V_SESSION_DIR
     or set --query XDG_DATA_HOME && set --local V_SESSION_DIR "$XDG_DATA_HOME/v"
     or set --local V_SESSION_DIR "$HOME/.local/share/v"
+
+    function __v_list_sessions
+        fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
+    end
+
+    function __v_list_session_dirs
+        fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
+    end
+
     switch $command
+        case -v --version
+            echo "v, version $v_version"
+
+        case '' -h --help
+            echo 'Usage: v open [SESSION]      Open the session'
+            echo '       v init                Start up a new session'
+            echo '       v list                List available sessions'
+            echo '       v delete SESSION      Delete the session'
+            echo '       v rename OLD NEW      Rename the session'
+            echo 'Options:'
+            echo '       -v | --version        Print version'
+            echo '       -h | --help           Print this help message'
+            echo 'Variables:'
+            echo '       V_SESSION_DIR         Saved session directory.'
+            echo '                               Default: ~/.local/share/v'
+
         case open
             if not test -n "$session_name"
                 set --local fzf_session (__v_list_sessions | fzf --height 40% --border --tac)
@@ -71,15 +92,11 @@ function v --argument command session_name new_session_name --description "Manag
         case _cleanup
             fd --extension lock --base-directory $V_SESSION_DIR -x rmdir
 
-
         case _list_dirs
             __v_list_session_dirs
 
-        case ''
-            echo "Missing command option!" >&2
-
         case '*'
-            echo "Invalid command option '$argv[1]'" >&2
+            echo "v: Unknown command: \"$command\"" >&2
             return 1
     end
 end
