@@ -37,6 +37,8 @@ brew install coreutils
 
 ## Configuration
 You can select where you want the session files to be saved with the variable `V_SESSION_DIR`.
+It defaults to `$XDG_DATA_HOME/v`.
+
 For example, I personally like to
 ```
 set -x V_SESSION_DIR "$XDG_DATA_HOME/nvim/sessions"
