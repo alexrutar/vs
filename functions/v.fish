@@ -1,17 +1,17 @@
 function v --argument command session_name new_session_name --description "Manage vim session files"
     function __v_list_sessions
-        fd -e vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
+        fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
     end
     function __v_list_session_dirs
         fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
     end
-    set -q V_SESSION_DIR
-    or set -q XDG_DATA_HOME && set -l V_SESSION_DIR "$XDG_DATA_HOME/v"
-    or set -l V_SESSION_DIR "$HOME/.local/share/v"
+    set --query V_SESSION_DIR
+    or set --query XDG_DATA_HOME && set --local V_SESSION_DIR "$XDG_DATA_HOME/v"
+    or set --local V_SESSION_DIR "$HOME/.local/share/v"
     switch $command
         case open
             if not test -n "$session_name"
-                set -l fzf_session (__v_list_sessions | fzf --height 40% --border --tac)
+                set --local fzf_session (__v_list_sessions | fzf --height 40% --border --tac)
                 if test -n "$fzf_session"
                     set session_name $fzf_session
                 else
@@ -19,8 +19,8 @@ function v --argument command session_name new_session_name --description "Manag
                 end
             end
 
-            set -l sessionfile $V_SESSION_DIR/$session_name.vim
-            set -l lockfile $V_SESSION_DIR/$session_name.lock
+            set --local sessionfile $V_SESSION_DIR/$session_name.vim
+            set --local lockfile $V_SESSION_DIR/$session_name.lock
 
             if test -f "$sessionfile"
                 # clean up the lockfile and the handler on exit, even when interrupted
@@ -29,7 +29,7 @@ function v --argument command session_name new_session_name --description "Manag
                         --inherit-variable lockfile \
                         --on-signal INT --on-signal HUP \
                         --on-event fish_exit
-                    functions -e __v_cleanup
+                    functions --erase __v_cleanup
                     rmdir $lockfile
                 end
 
@@ -45,14 +45,14 @@ function v --argument command session_name new_session_name --description "Manag
                 return 1
             end
 
-        case mv
-            set -l target $V_SESSION_DIR/$new_session_name.vim
-            mkdir -p (dirname $target) && mv -i $V_SESSION_DIR/$session_name.vim $target
+        case mv rename
+            set --local target $V_SESSION_DIR/$new_session_name.vim
+            mkdir --parents (dirname $target) && mv --interactive $V_SESSION_DIR/$session_name.vim $target
 
-        case rm
-            rm -i $V_SESSION_DIR/$session_name.vim
+        case rm delete
+            rm --interactive $V_SESSION_DIR/$session_name.vim
 
-        case list
+        case ls list
             if isatty 1
                 __v_list_sessions | tree --fromfile . --noreport
             else
@@ -60,20 +60,23 @@ function v --argument command session_name new_session_name --description "Manag
             end
 
         case init
-            set -l sessionfile $V_SESSION_DIR/$session_name.vim
+            set --local sessionfile $V_SESSION_DIR/$session_name.vim
             if test -f $sessionfile
                 echo "Cannot overwrite existing session '$session_name'" >&2
                 return 1
             else
-                mkdir -p (dirname $sessionfile) && vim "+silent VSave $session_name" +term
+                mkdir --parents (dirname $sessionfile) && vim "+silent VSave $session_name" +term
             end
 
         case _cleanup
-            fd -e lock --base-directory $V_SESSION_DIR -x rmdir
+            fd --extension lock --base-directory $V_SESSION_DIR -x rmdir
 
 
         case _list_dirs
             __v_list_session_dirs
+
+        case ''
+            echo "Missing command option!" >&2
 
         case '*'
             echo "Invalid command option '$argv[1]'" >&2
