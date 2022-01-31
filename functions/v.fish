@@ -18,17 +18,17 @@ function v --argument command session_name new_session_name --description "Manag
             echo "v, version $v_version"
 
         case '' -h --help
-            echo 'Usage: v open [SESSION]      Open the session'
-            echo '       v init                Start up a new session'
-            echo '       v list                List available sessions'
-            echo '       v delete SESSION      Delete the session'
-            echo '       v rename OLD NEW      Rename the session'
+            echo 'Usage: v open [SESSION]   Open the session'
+            echo '       v init SESSION     Start up a new session'
+            echo '       v delete SESSION   Delete the session'
+            echo '       v rename OLD NEW   Rename the session'
+            echo '       v list             List available sessions'
             echo 'Options:'
-            echo '       -v | --version        Print version'
-            echo '       -h | --help           Print this help message'
+            echo '       -v | --version     Print version'
+            echo '       -h | --help        Print this help message'
             echo 'Variables:'
-            echo '       V_SESSION_DIR         Saved session directory.'
-            echo '                               Default: ~/.local/share/v'
+            echo '       V_SESSION_DIR      Saved session directory.'
+            echo '                            Default: ~/.local/share/v'
 
         case open
             if not test -n "$session_name"

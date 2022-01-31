@@ -2,16 +2,21 @@
 This script is essentially a command line wrapper around [Obsession.vim](https://github.com/tpope/vim-obsession), which is itself a wrapper around Vim's built-in `:mksession`.
 Initialize new sessions with
 ```
-v init <session name>
+v init <session>
 ```
 Open existing sesssions with
 ```
-v open <session name>
+v open <session>
 ```
-or simply `v open` to open up a nice prompt in [fzf](https://github.com/junegunn/fzf).
+or simply `v open` to open up an interactive chooser.
 If you are currently in a (Neo)Vim session which is not currently being saved, you can run
 ```
-:VSave <session name>
+:VSave <session>
+```
+to start saving.
+Get more information with
+```
+v --help
 ```
 
 ## Installation
@@ -23,9 +28,8 @@ Otherwise, the function is in [functions/v.fish](functions/v.fish) and the compl
 
 You also need to install [Obsession.vim](https://github.com/tpope/vim-obsession) and add the following (Neo)Vim command to your `.vimrc` or `init.vim`:
 ```
-command -nargs=1 SSave Obsess $VIM_SESSION_DIR/<args>.vim
+command -nargs=1 VSave Obsess $VIM_SESSION_DIR/<args>.vim
 ```
-The script is documented via tab-completion.
 
 ## Dependencies
 You need the tools [fzf](https://github.com/junegunn/fzf) and [fd](https://github.com/sharkdp/fd) accessible on your `PATH`.
