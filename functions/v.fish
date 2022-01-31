@@ -1,11 +1,13 @@
 function v --argument command session_name new_session_name --description "Manage vim session files"
     function __v_list_sessions
-        fd -e vim --base-directory $NVIM_SESSION_DIR --exec echo {.} | sort
+        fd -e vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
     end
     function __v_list_session_dirs
-        fd --type d --base-directory $NVIM_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
+        fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
     end
-    set -q NVIM_SESSION_DIR; or set -l NVIM_SESSION_DIR "~/.local/share/nvim/sessions"
+    set -q V_SESSION_DIR
+    or set -q XDG_DATA_DIR && set -l V_SESSION_DIR "$XDG_DATA_HOME/v"
+    or set -l V_SESSION_DIR "$HOME/.local/share/v"
     switch $command
         case open
             if not test -n "$session_name"
@@ -17,8 +19,8 @@ function v --argument command session_name new_session_name --description "Manag
                 end
             end
 
-            set -l sessionfile $NVIM_SESSION_DIR/$session_name.vim
-            set -l lockfile $NVIM_SESSION_DIR/$session_name.lock
+            set -l sessionfile $V_SESSION_DIR/$session_name.vim
+            set -l lockfile $V_SESSION_DIR/$session_name.lock
 
             if test -f "$sessionfile"
                 # clean up the lockfile and the handler on exit, even when interrupted
@@ -44,11 +46,11 @@ function v --argument command session_name new_session_name --description "Manag
             end
 
         case mv
-            set -l target $NVIM_SESSION_DIR/$new_session_name.vim
-            mkdir -p (dirname $target) && mv -i $NVIM_SESSION_DIR/$session_name.vim $target
+            set -l target $V_SESSION_DIR/$new_session_name.vim
+            mkdir -p (dirname $target) && mv -i $V_SESSION_DIR/$session_name.vim $target
 
         case rm
-            rm -i $NVIM_SESSION_DIR/$session_name.vim
+            rm -i $V_SESSION_DIR/$session_name.vim
 
         case list
             if isatty 1
@@ -58,16 +60,16 @@ function v --argument command session_name new_session_name --description "Manag
             end
 
         case init
-            set -l sessionfile $NVIM_SESSION_DIR/$session_name.vim
+            set -l sessionfile $V_SESSION_DIR/$session_name.vim
             if test -f $sessionfile
                 echo "Cannot overwrite existing session '$session_name'" >&2
                 return 1
             else
-                mkdir -p (dirname $sessionfile) && vim "+silent SSave $session_name" +term
+                mkdir -p (dirname $sessionfile) && vim "+silent VSave $session_name" +term
             end
 
         case _cleanup
-            fd -e lock --base-directory $NVIM_SESSION_DIR -x rmdir
+            fd -e lock --base-directory $V_SESSION_DIR -x rmdir
 
 
         case _list_dirs
