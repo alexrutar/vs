@@ -1,6 +1,6 @@
 function _vs_install --on-event vs_install
     for cmd in fd fzf tree
-        if not which $cmd
+        if not which $cmd &> /dev/null
             set_color yellow; echo "Warning: cannot find command '$cmd'. See https://github.com/alexrutar/vs#dependencies for more details."; set_color normal
         end
     end
