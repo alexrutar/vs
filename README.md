@@ -55,8 +55,8 @@ For example, I personally like to
 ```
 set -x VS_SESSION_DIR "$XDG_DATA_HOME/nvim/sessions"
 ```
-You can also specify the Vim executable with `VS_VIM`.
-If you want to use `nvim` installed into `/usr/local`, run
+You can also specify the Vim executable with `VS_VIM`, along with additional options.
+For instance, if you want to use `nvim` installed into `/usr/local` in verbose mode,
 ```
-set -x VS_VIM /usr/local/bin/nvim
+set -x VS_VIM /usr/local/bin/nvim -V
 ```
