@@ -1,4 +1,4 @@
-# V Session Manager
+# (Neo)Vim Session Manager
 This script is essentially a command line wrapper around [Obsession.vim](https://github.com/tpope/vim-obsession), which is itself a wrapper around Vim's built-in `:mksession`.
 Initialize new sessions with
 ```
@@ -8,7 +8,7 @@ Open existing sesssions with
 ```
 vs open <session>
 ```
-or simply `v open` to open up an interactive chooser.
+or simply `vs open` to open up an interactive chooser.
 If you are currently in a (Neo)Vim session which is not currently being saved, you can run
 ```
 :VSave <session>
