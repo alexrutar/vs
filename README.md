@@ -13,7 +13,7 @@ If you are currently in a (Neo)Vim session which is not currently being saved, y
 ```
 :VSave <session>
 ```
-to start saving.
+to start saving into the session file.
 Get more information with
 ```
 v --help
@@ -26,10 +26,19 @@ fisher install alexrutar/v-session-manager
 ```
 Otherwise, the function is in [functions/v.fish](functions/v.fish) and the completions are in [completions/v.fish](completions/v.fish) and you can just install them manually.
 
-You also need to install [Obsession.vim](https://github.com/tpope/vim-obsession) and add the following (Neo)Vim command to your `.vimrc` or `init.vim`:
+You also need to install [Obsession.vim](https://github.com/tpope/vim-obsession) and add the following (Neo)Vim contents to your `.vimrc` or `init.vim`:
 ```
-command -nargs=1 VSave Obsess $VIM_SESSION_DIR/<args>.vim
+command -nargs=1 -complete=custom,ListVSessions VSave Obsess $NVIM_SESSION_DIR/<args>.vim
+function ListVSessions(A,L,P)
+    return system("v list")
+endfun
 ```
+Note that this assumes that fish is your default shell in Vim.
+If not, replace the third line with
+```
+    return system("fish -c 'v list'")
+```
+which will make the autocompletion somewhat slower.
 
 ## Dependencies
 You need the tools [fzf](https://github.com/junegunn/fzf) and [fd](https://github.com/sharkdp/fd) accessible on your `PATH`.
