@@ -46,7 +46,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
             if test -f "$sessionfile"
                 if mkdir $lockfile &> /dev/null
-                    fish -c "trap \"rmdir $lockfile\" INT HUP EXIT; vim -S $sessionfile; rmdir $lockfile"
+                    fish -c "trap \"rmdir $lockfile\" INT HUP EXIT; vim -S $sessionfile"
                 else
                     echo "Session '$session_name' already running!" >&2
                     return 1
