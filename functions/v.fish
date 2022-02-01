@@ -5,11 +5,11 @@ function v --argument command session_name new_session_name --description "Manag
     or set --query XDG_DATA_HOME && set --local V_SESSION_DIR "$XDG_DATA_HOME/v"
     or set --local V_SESSION_DIR "$HOME/.local/share/v"
 
-    function __v_list_sessions
+    function __v_list_sessions --inherit-variable V_SESSION_DIR
         fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.}
     end
 
-    function __v_list_session_dirs
+    function __v_list_session_dirs --inherit-variable V_SESSION_DIR
         fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//'
     end
 
