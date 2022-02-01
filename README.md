@@ -44,11 +44,7 @@ which will make the autocompletion somewhat slower.
 
 ## Dependencies
 You need the tools [fzf](https://github.com/junegunn/fzf) and [fd](https://github.com/sharkdp/fd) accessible on your `PATH`.
-You also need a mildly modern version of `tree`.
-If you're running macOS and everything is outdated, you can
-```
-brew install coreutils
-```
+You also need a mildly modern version of GNU `tree`.
 
 ## Configuration
 You can select where you want the session files to be saved with the variable `VS_SESSION_DIR`.

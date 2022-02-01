@@ -1,9 +1,8 @@
 function _vs_install --on-event vs_install
-    if not which fd
-        echo "Warning: cannot find command 'fd'. See https://github.com/alexrutar/vs#dependencies for more details."
-    end
-    if not which fzf
-        echo "Warning: cannot find command 'fzf'. See https://github.com/alexrutar/vs#dependencies for more details."
+    for cmd in fd fzf tree
+        if not which $cmd
+            echo "Warning: cannot find command '$cmd'. See https://github.com/alexrutar/vs#dependencies for more details."
+        end
     end
 end
 
