@@ -47,8 +47,8 @@ function vs --argument command session_name new_session_name --description "Mana
                 end
             end
 
-            set --local sessionfile $VS_SESSION_DIR/$session_name.vim
-            set --local lockfile $VS_SESSION_DIR/$session_name.lock
+            set --local lockfile "$VS_SESSION_DIR/$session_name.lock"
+            set --local sessionfile "$VS_SESSION_DIR/$session_name.vim"
 
             if test -f "$sessionfile"
                 if mkdir $lockfile &> /dev/null
