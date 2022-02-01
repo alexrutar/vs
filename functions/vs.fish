@@ -16,7 +16,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
     switch $command
         case -v --version
-            echo "vs, version $v_version"
+            echo "vs, version $vs_version"
 
         case '' -h --help help
             echo 'Usage: vs open [SESSION]   Open the session'
