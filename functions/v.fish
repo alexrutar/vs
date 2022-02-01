@@ -89,8 +89,9 @@ function v --argument command session_name new_session_name --description "Manag
                 mkdir --parents (dirname $sessionfile) && vim "+silent VSave $session_name" +term
             end
 
+        # extra undocumented utility functions
         case _cleanup
-            fd --extension lock --base-directory $V_SESSION_DIR -x rmdir
+            fd --extension lock --base-directory $V_SESSION_DIR --exec rmdir
 
         case _list_dirs
             __v_list_session_dirs
