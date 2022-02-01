@@ -45,19 +45,8 @@ function vs --argument command session_name new_session_name --description "Mana
             set --local lockfile $VS_SESSION_DIR/$session_name.lock
 
             if test -f "$sessionfile"
-                # clean up the lockfile and the handler on exit, even when interrupted
-                # we require a unique name since we need one cleanup handler for each active session
-                function __vs_cleanup \
-                        --inherit-variable lockfile \
-                        --on-signal INT --on-signal HUP \
-                        --on-event fish_exit
-                    functions --erase __vs_cleanup
-                    rmdir $lockfile
-                end
-
                 if mkdir $lockfile &> /dev/null
-                    vim -S $sessionfile
-                    __vs_cleanup
+                    fish -c "trap \"rmdir $lockfile\" INT HUP EXIT; vim -S $sessionfile; rmdir $lockfile"
                 else
                     echo "Session '$session_name' already running!" >&2
                     return 1
