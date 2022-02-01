@@ -93,9 +93,6 @@ function v --argument command session_name new_session_name --description "Manag
         case _cleanup
             fd --extension lock --base-directory $V_SESSION_DIR --exec rmdir
 
-        case _list_dirs
-            __v_list_session_dirs | sort
-
         case _list_all
             begin; __v_list_sessions; __v_list_session_dirs; end | sort
 

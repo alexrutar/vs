@@ -1,4 +1,4 @@
-set -l v_subcommands_with_list open rename delete
+# set -l v_subcommands_with_list open rename delete
 complete --command v --exclusive --long help --description "Print help"
 complete --command v --exclusive --long version --description "Print version"
 
@@ -9,7 +9,7 @@ complete --command v --exclusive --condition __fish_use_subcommand --arguments l
 complete --command v --exclusive --condition __fish_use_subcommand --arguments init --description "Start up a new session"
 
 complete -c v -a "(v list)" \
-    -n "__fish_seen_subcommand_from $v_subcommands_with_list"
+    -n "__fish_seen_subcommand_from open delete"
 
-complete -c v -a "(v _list_dirs)" \
-    -n "__fish_seen_subcommand_from init"
+complete -c v -a "(v _list_all)" \
+    -n "__fish_seen_subcommand_from init rename"
