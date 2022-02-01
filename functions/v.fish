@@ -17,7 +17,7 @@ function v --argument command session_name new_session_name --description "Manag
         case -v --version
             echo "v, version $v_version"
 
-        case '' -h --help
+        case '' -h --help help
             echo 'Usage: v open [SESSION]   Open the session'
             echo '       v init SESSION     Start up a new session'
             echo '       v delete SESSION   Delete the session'

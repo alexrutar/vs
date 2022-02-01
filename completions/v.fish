@@ -8,8 +8,8 @@ complete --command v --exclusive --condition __fish_use_subcommand --arguments d
 complete --command v --exclusive --condition __fish_use_subcommand --arguments list --description "List available session files"
 complete --command v --exclusive --condition __fish_use_subcommand --arguments init --description "Start up a new session"
 
-complete -c v -a "(v list)" \
-    -n "__fish_seen_subcommand_from open delete"
+complete --command v --exclusive --arguments "(v list)" \
+    --condition "__fish_seen_subcommand_from open delete"
 
-complete -c v -a "(v _list_all)" \
-    -n "__fish_seen_subcommand_from init rename"
+complete --command v --exclusive --arguments "(v _list_all)" \
+    --condition "__fish_seen_subcommand_from init rename"
