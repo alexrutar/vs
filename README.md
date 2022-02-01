@@ -14,6 +14,8 @@ If you are currently in a (Neo)Vim session which is not currently being saved, y
 :VSave <session>
 ```
 to start saving into the session file.
+To close a session, simple `:qa`.
+
 Get more information with
 ```
 v --help
@@ -30,7 +32,7 @@ You also need to install [Obsession.vim](https://github.com/tpope/vim-obsession)
 ```
 command -nargs=1 -complete=custom,ListVSessions VSave Obsess $NVIM_SESSION_DIR/<args>.vim
 function ListVSessions(A,L,P)
-    return system("v list")
+    return system("v _list_all")
 endfun
 ```
 Note that this assumes that fish is your default shell in Vim.

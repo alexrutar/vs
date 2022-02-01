@@ -6,11 +6,11 @@ function v --argument command session_name new_session_name --description "Manag
     or set --local V_SESSION_DIR "$HOME/.local/share/v"
 
     function __v_list_sessions
-        fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.} | sort
+        fd --extension vim --base-directory $V_SESSION_DIR --exec echo {.}
     end
 
     function __v_list_session_dirs
-        fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//' | sort
+        fd --type d --base-directory $V_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//'
     end
 
     switch $command
@@ -32,7 +32,7 @@ function v --argument command session_name new_session_name --description "Manag
 
         case open
             if not test -n "$session_name"
-                set --local fzf_session (__v_list_sessions | fzf --height 40% --border --tac)
+                set --local fzf_session (__v_list_sessions | sort | fzf --height 40% --border --tac)
                 if test -n "$fzf_session"
                     set session_name $fzf_session
                 else
@@ -77,7 +77,7 @@ function v --argument command session_name new_session_name --description "Manag
             if isatty 1
                 __v_list_sessions | tree --fromfile . --noreport
             else
-                __v_list_sessions
+                __v_list_sessions | sort
             end
 
         case init
@@ -94,7 +94,10 @@ function v --argument command session_name new_session_name --description "Manag
             fd --extension lock --base-directory $V_SESSION_DIR --exec rmdir
 
         case _list_dirs
-            __v_list_session_dirs
+            __v_list_session_dirs | sort
+
+        case _list_all
+            begin; __v_list_sessions; __v_list_session_dirs; end | sort
 
         case '*'
             echo "v: Unknown command: \"$command\"" >&2
