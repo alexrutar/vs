@@ -1,10 +1,14 @@
 function vs --argument command session_name new_session_name --description "Manage vim session files"
     set --local vs_version 0.1
 
+    # establish defaults
     set --query VS_SESSION_DIR
     or set --query XDG_DATA_HOME && set --local VS_SESSION_DIR "$XDG_DATA_HOME/vs"
     or set --local VS_SESSION_DIR "$HOME/.local/share/vs"
     mkdir -p $VS_SESSION_DIR
+
+    set --query VS_VIM
+    or set --local VS_VIM (which vim)
 
     function __vs_list_sessions --inherit-variable VS_SESSION_DIR
         fd --extension vim --base-directory $VS_SESSION_DIR --exec echo {.}
@@ -25,11 +29,13 @@ function vs --argument command session_name new_session_name --description "Mana
             echo '       vs rename OLD NEW   Rename the session'
             echo '       vs list             List available sessions'
             echo 'Options:'
-            echo '       -v | --version     Print version'
-            echo '       -h | --help        Print this help message'
+            echo '       -v | --version      Print version'
+            echo '       -h | --help         Print this help message'
             echo 'Variables:'
             echo '       VS_SESSION_DIR      Saved session directory.'
             echo '                            Default: ~/.local/share/vs'
+            echo '       VS_VIM              Vim executable.'
+            echo "                            Default:" (which vim)
 
         case open
             if not test -n "$session_name"
@@ -46,7 +52,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
             if test -f "$sessionfile"
                 if mkdir $lockfile &> /dev/null
-                    fish -c 'trap "rmdir $argv[1]" INT HUP EXIT; vim -S $argv[2]' $lockfile $sessionfile
+                    fish --no-config --command 'trap "rmdir $argv[1]" INT HUP EXIT; $argv[2] -S $argv[3]' $lockfile $VS_VIM $sessionfile
                 else
                     echo "Session '$session_name' already running!" >&2
                     return 1
