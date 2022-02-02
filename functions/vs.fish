@@ -1,9 +1,9 @@
 function __vs_list_sessions --argument session_dir
-    fd --extension vim --no-ignore --base-directory $session_dir --exec echo {.}
+    fd --extension vim --hidden --no-ignore --base-directory $session_dir --exec echo {.}
 end
 
 function __vs_list_session_dirs --argument session_dir
-    fd --type d --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
+    fd --type d --hidden --no-ignore --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
 end
 
 function vs --argument command session_name new_session_name --description "Manage vim session files"
@@ -91,6 +91,8 @@ function vs --argument command session_name new_session_name --description "Mana
         case rename mv
             set --local source
             set --local target
+
+            # don't mangle directory names
             if test -d $VS_SESSION_DIR/$session_name
                 set source $VS_SESSION_DIR/$session_name
                 set target $VS_SESSION_DIR/$new_session_name
@@ -106,6 +108,7 @@ function vs --argument command session_name new_session_name --description "Mana
                     mkdir --parents (dirname $target)
                 end
             end
+
             mv --interactive $source $target
 
 
