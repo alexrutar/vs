@@ -8,6 +8,6 @@ complete --command vs --exclusive --condition __fish_use_subcommand --arguments 
 complete --command vs --exclusive --condition __fish_use_subcommand --arguments init --description "Start up a new session"
 
 complete --command vs --exclusive --arguments "(vs list)" \
-    --condition "__fish_seen_subcommand_from open delete"
+    --condition "__fish_seen_subcommand_from open delete rm"
 complete --command vs --exclusive --arguments "(vs _list_all)" \
-    --condition "__fish_seen_subcommand_from init rename"
+    --condition "__fish_seen_subcommand_from init rename mv"
