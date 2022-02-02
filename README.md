@@ -9,11 +9,6 @@ Open existing sesssions with
 vs open <session>
 ```
 or simply `vs open` to open up an interactive chooser.
-If you are currently in a (Neo)Vim session which is not currently being saved, you can run
-```
-:VSave <session>
-```
-to start saving into the session file.
 To close a session, simple `:qa`.
 
 Get more information with
@@ -22,26 +17,12 @@ vs --help
 ```
 
 ## Installation
-If you have something like [fisher](https://github.com/jorgebucaran/fisher) installed, you can
+If you have something like [fisher](https://github.com/jorgebucaran/fisher), you can
 ```
 fisher install alexrutar/vs
 ```
 Otherwise, the function is in [functions/vs.fish](functions/vs.fish) and the completions are in [completions/vs.fish](completions/vs.fish) and you can just install them manually.
-
-You also need to configure (Neo)Vim.
-First install [Obsession.vim](https://github.com/tpope/vim-obsession), and then add the following (Neo)Vim contents to your `.vimrc` or `init.vim`:
-```
-command -nargs=1 -complete=custom,ListVSessions VSave Obsess $VS_SESSION_DIR/<args>.vim
-function ListVSessions(A,L,P)
-    return system("vs _list_all")
-endfun
-```
-Note that this assumes that fish is your default shell in (Neo)Vim.
-If not, replace the third line with
-```
-    return system("fish -c 'vs _list_all'")
-```
-though this will likely make the autocompletion a bit slower.
+You also need to ensure that [Obsession.vim](https://github.com/tpope/vim-obsession) is installed in your Vim instance.
 
 ## Dependencies
 You need the tools [fzf](https://github.com/junegunn/fzf) and [fd](https://github.com/sharkdp/fd) accessible on your `PATH`.

@@ -82,7 +82,7 @@ function vs --argument command session_name new_session_name --description "Mana
                 echo "Cannot overwrite existing session '$session_name'" >&2
                 return 1
             else
-                mkdir --parents (dirname $sessionfile) && vim "+silent VSave $session_name" +term
+                mkdir --parents (dirname $sessionfile) && vim '+silent Obsess $VS_SESSION_DIR/'$session_name.vim +term
             end
 
         # extra undocumented utility functions
