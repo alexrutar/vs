@@ -10,17 +10,22 @@ function vs --argument command session_name new_session_name --description "Mana
     set --query VS_VIM
     or set --local VS_VIM (which vim)
 
+
+    # useful helper functions
     function __vs_list_sessions --inherit-variable VS_SESSION_DIR
         fd --extension vim --base-directory $VS_SESSION_DIR --exec echo {.}
     end
 
     function __vs_list_session_dirs --inherit-variable VS_SESSION_DIR
-        fd --type d --base-directory $VS_SESSION_DIR --exclude "*.lock"  --strip-cwd-prefix | sed 's/$/\//'
+        fd --type d --base-directory $VS_SESSION_DIR --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
     end
 
+
+    # main argument processing
     switch $command
         case -v --version
             echo "vs, version $vs_version"
+
 
         case '' -h --help help
             echo 'Usage: vs open [SESSION]   Open the session'
@@ -37,11 +42,12 @@ function vs --argument command session_name new_session_name --description "Mana
             echo '       VS_VIM              Vim executable.'
             echo "                            Default:" (which vim)
 
+
         case open
             if not test -n "$session_name"
                 set --local fzf_session (__vs_list_sessions | sort | fzf --height 40% --border --tac)
                 if test -n "$fzf_session"
-                    set session_name $fzf_session
+                    set session_name "$fzf_session"
                 else
                     return 0
                 end
@@ -62,19 +68,6 @@ function vs --argument command session_name new_session_name --description "Mana
                 return 1
             end
 
-        case mv rename
-            set --local target $VS_SESSION_DIR/$new_session_name.vim
-            mkdir --parents (dirname $target) && mv --interactive $VS_SESSION_DIR/$session_name.vim $target
-
-        case rm delete
-            rm --interactive $VS_SESSION_DIR/$session_name.vim
-
-        case ls list
-            if isatty 1
-                __vs_list_sessions | tree --fromfile . --noreport
-            else
-                __vs_list_sessions | sort
-            end
 
         case init
             set --local lockfile "$VS_SESSION_DIR/$session_name.lock"
@@ -92,12 +85,31 @@ function vs --argument command session_name new_session_name --description "Mana
                 end
             end
 
-        # extra undocumented utility functions
+
+        case rename mv
+            set --local target $VS_SESSION_DIR/$new_session_name.vim
+            mkdir --parents (dirname $target) && mv --interactive $VS_SESSION_DIR/$session_name.vim $target
+
+
+        case delete rm
+            rm --interactive $VS_SESSION_DIR/$session_name.vim
+
+
+        case list ls
+            if isatty 1
+                __vs_list_sessions | tree --fromfile . --noreport
+            else
+                __vs_list_sessions | sort
+            end
+
+
         case _cleanup
             fd --extension lock --base-directory $VS_SESSION_DIR --exec rmdir
 
+
         case _list_all
             begin; __vs_list_sessions; __vs_list_session_dirs; end | sort
+
 
         case '*'
             echo "vs: Unknown command: \"$command\"" >&2
