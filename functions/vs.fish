@@ -92,7 +92,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case delete rm
-            rm --interactive $VS_SESSION_DIR/$session_name.vim
+            rm --recursive --interactive $VS_SESSION_DIR/$session_name.vim
 
 
         case list ls
