@@ -1,24 +1,26 @@
+function __vs_list_sessions --argument session_dir
+    fd --extension vim --no-ignore --base-directory $session_dir --exec echo {.}
+end
+
+function __vs_list_session_dirs --argument session_dir
+    fd --type d --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
+end
+
 function vs --argument command session_name new_session_name --description "Manage vim session files"
-    set --local vs_version 0.1
+    set --local vs_version 0.4
 
     # establish defaults
     set --query VS_SESSION_DIR
     or set --query XDG_DATA_HOME && set --local VS_SESSION_DIR "$XDG_DATA_HOME/vs"
     or set --local VS_SESSION_DIR "$HOME/.local/share/vs"
-    mkdir -p $VS_SESSION_DIR
 
     set --query VS_VIM
     or set --local VS_VIM (which vim)
 
 
-    # useful helper functions
-    function __vs_list_sessions --inherit-variable VS_SESSION_DIR
-        fd --extension vim --base-directory $VS_SESSION_DIR --exec echo {.}
-    end
-
-    function __vs_list_session_dirs --inherit-variable VS_SESSION_DIR
-        fd --type d --base-directory $VS_SESSION_DIR --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
-    end
+    # normalize session dir
+    set --local VS_SESSION_DIR (string trim --chars '/' --right $VS_SESSION_DIR)
+    mkdir -p $VS_SESSION_DIR
 
 
     # main argument processing
@@ -45,7 +47,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
         case open
             if not test -n "$session_name"
-                set --local fzf_session (__vs_list_sessions | sort | fzf --height 40% --border --tac)
+                set --local fzf_session (__vs_list_sessions $VS_SESSION_DIR | sort | fzf --height 40% --border --tac)
                 if test -n "$fzf_session"
                     set session_name "$fzf_session"
                 else
@@ -87,19 +89,41 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case rename mv
-            set --local target $VS_SESSION_DIR/$new_session_name.vim
-            mkdir --parents (dirname $target) && mv --interactive $VS_SESSION_DIR/$session_name.vim $target
+            set --local source
+            set --local target
+            if test -d $VS_SESSION_DIR/$session_name
+                set source $VS_SESSION_DIR/$session_name
+                set target $VS_SESSION_DIR/$new_session_name
+                mkdir --parents $target
+            else
+                set source $VS_SESSION_DIR/$session_name.vim
+                if test -d $VS_SESSION_DIR/$new_session_name
+                    or string match -e '/' $new_session_name &> /dev/null
+                    set target $VS_SESSION_DIR/$new_session_name
+                    mkdir --parents $target
+                else
+                    set target $VS_SESSION_DIR/$new_session_name.vim
+                    mkdir --parents (dirname $target)
+                end
+            end
+            mv --interactive $source $target
 
 
         case delete rm
-            rm --recursive --interactive $VS_SESSION_DIR/$session_name.vim
+            set --local source
+            if test -d $VS_SESSION_DIR/$session_name
+                set source $VS_SESSION_DIR/$session_name
+            else
+                set source $VS_SESSION_DIR/$session_name.vim
+            end
+            rm --recursive --interactive $source
 
 
         case list ls
             if isatty 1
-                __vs_list_sessions | tree --fromfile . --noreport
+                __vs_list_sessions $VS_SESSION_DIR | tree --fromfile . --noreport
             else
-                __vs_list_sessions | sort
+                __vs_list_sessions $VS_SESSION_DIR | sort
             end
 
 
@@ -108,7 +132,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case _list_all
-            begin; __vs_list_sessions; __vs_list_session_dirs; end | sort
+            begin; __vs_list_sessions $VS_SESSION_DIR; __vs_list_session_dirs $VS_SESSION_DIR; end | sort
 
 
         case '*'
