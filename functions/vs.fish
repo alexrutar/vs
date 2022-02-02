@@ -77,12 +77,19 @@ function vs --argument command session_name new_session_name --description "Mana
             end
 
         case init
+            set --local lockfile "$VS_SESSION_DIR/$session_name.lock"
             set --local sessionfile $VS_SESSION_DIR/$session_name.vim
             if test -f $sessionfile
                 echo "Cannot overwrite existing session '$session_name'" >&2
                 return 1
             else
-                mkdir --parents (dirname $sessionfile) && vim '+silent Obsess $VS_SESSION_DIR/'$session_name.vim +term
+                mkdir --parents (dirname $sessionfile)
+                if mkdir $lockfile &> /dev/null
+                    fish --no-config --command 'trap "rmdir $argv[1]" INT HUP EXIT; $argv[3..] "+silent Obsess $argv[2]" +term' $lockfile $sessionfile $VS_VIM
+                else
+                    echo "Session '$session_name' already running!" >&2
+                    return 1
+                end
             end
 
         # extra undocumented utility functions
