@@ -9,8 +9,7 @@ Open existing sesssions with
 vs open <session>
 ```
 or simply `vs open` to open up an interactive chooser.
-To close a session, simple `:qa`.
-
+To close a session, simply `:qa`.
 Get more information with
 ```
 vs --help
@@ -21,12 +20,13 @@ If you have something like [fisher](https://github.com/jorgebucaran/fisher), you
 ```
 fisher install alexrutar/vs
 ```
-Otherwise, the function is in [functions/vs.fish](functions/vs.fish) and the completions are in [completions/vs.fish](completions/vs.fish) and you can just install them manually.
-You also need to ensure that [Obsession.vim](https://github.com/tpope/vim-obsession) is installed in your Vim instance.
+Otherwise, the function is in [functions/vs.fish](functions/vs.fish) and the completions are in [completions/vs.fish](completions/vs.fish) and you can just copy them to the relevant folders.
 
 ## Dependencies
 You need the tools [fzf](https://github.com/junegunn/fzf) and [fd](https://github.com/sharkdp/fd) accessible on your `PATH`.
 You also need a mildly modern version of GNU `tree`.
+
+You also need [Obsession.vim](https://github.com/tpope/vim-obsession) accessible to your preferred Vim executable.
 
 ## Configuration
 You can select where you want the session files to be saved with the variable `VS_SESSION_DIR`.
@@ -37,7 +37,7 @@ For example, I personally like to
 set -x VS_SESSION_DIR "$XDG_DATA_HOME/nvim/sessions"
 ```
 You can also specify the Vim executable with `VS_VIM`, along with additional options.
-If you want to use `nvim` installed into `/usr/local` in verbose mode, you would set
+If you want to use Neovim installed into `/usr/local` in verbose mode, you would
 ```
 set -x VS_VIM /usr/local/bin/nvim -V
 ```
