@@ -39,9 +39,9 @@ function vs --argument command session_name new_session_name --description "Mana
             echo '       -v | --version      Print version'
             echo '       -h | --help         Print this help message'
             echo 'Variables:'
-            echo '       VS_SESSION_DIR      Saved session directory.'
+            echo '       VS_SESSION_DIR      Saved session directory'
             echo '                            Default: ~/.local/share/vs'
-            echo '       VS_VIM              Vim executable.'
+            echo '       VS_VIM              Vim executable'
             echo "                            Default:" (which vim)
 
 
