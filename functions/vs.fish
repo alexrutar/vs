@@ -62,7 +62,7 @@ function vs --argument command session_name new_session_name --description "Mana
                 if mkdir $lockfile &> /dev/null
                     fish --no-config --command 'trap "rmdir $argv[1]" INT HUP EXIT; $argv[3..] -S $argv[2]' $lockfile $sessionfile $VS_VIM
                 else
-                    echo "Session '$session_name' already running!" >&2
+                    echo "Session '$session_name' is already running!" >&2
                     return 1
                 end
             else
