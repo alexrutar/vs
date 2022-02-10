@@ -1,6 +1,6 @@
 # (Neo)Vim Session Manager
 This script is essentially a command line wrapper around [Obsession.vim](https://github.com/tpope/vim-obsession), which is itself a wrapper around Vim's built-in `:mksession`.
-Initialize new sessions with
+Initialize new sessions from the current directory with
 ```
 vs init <session>
 ```
@@ -12,7 +12,7 @@ or simply `vs open` to open up an interactive chooser.
 To close a session, simply `:qa`.
 Get more information with
 ```
-vs --help
+vs -h
 ```
 
 ## Installation
@@ -37,7 +37,7 @@ For example, I personally like to
 set -x VS_SESSION_DIR "$XDG_DATA_HOME/nvim/sessions"
 ```
 You can also specify the Vim executable with `VS_VIM`, along with additional options.
-If you want to use Neovim installed into `/usr/local` in verbose mode, you would
+For instance, if you want to use Neovim installed into `/usr/local` in verbose mode, you would
 ```
 set -x VS_VIM /usr/local/bin/nvim -V
 ```
