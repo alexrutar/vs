@@ -6,8 +6,17 @@ function __vs_list_session_dirs --argument session_dir
     fd --type d --hidden --no-ignore --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
 end
 
+function __vs_run_session --argument vim_cmd_args session_name session_file session_lock
+    if mkdir $session_lock &> /dev/null
+        fish --no-config --command 'trap "rmdir $argv[2]" INT TERM EXIT; $argv[3..] '$vim_cmd_args $session_file $session_lock $argv[5..]
+    else
+        echo "Session '$session_name' already running!" >&2
+        return 1
+    end
+end
+
 function vs --argument command session_name new_session_name --description "Manage vim session files"
-    set --local vs_version 0.4
+    set --local vs_version 0.5
 
     # establish defaults
     set --query VS_SESSION_DIR
@@ -55,16 +64,11 @@ function vs --argument command session_name new_session_name --description "Mana
                 end
             end
 
-            set --local lockfile "$VS_SESSION_DIR/$session_name.lock"
-            set --local sessionfile "$VS_SESSION_DIR/$session_name.vim"
+            set --local session_lock "$VS_SESSION_DIR/$session_name.lock"
+            set --local session_file "$VS_SESSION_DIR/$session_name.vim"
 
-            if test -f "$sessionfile"
-                if mkdir $lockfile &> /dev/null
-                    fish --no-config --command 'trap "rmdir $argv[1]" INT HUP EXIT; $argv[3..] -S $argv[2]' $lockfile $sessionfile $VS_VIM
-                else
-                    echo "Session '$session_name' is already running!" >&2
-                    return 1
-                end
+            if test -f $session_file
+                __vs_run_session '-S $argv[1]' $session_name $session_file $session_lock $VS_VIM
             else
                 echo "Could not find session '$session_name'" >&2
                 return 1
@@ -72,19 +76,15 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case init
-            set --local lockfile "$VS_SESSION_DIR/$session_name.lock"
-            set --local sessionfile $VS_SESSION_DIR/$session_name.vim
-            if test -f $sessionfile
+            set --local session_lock "$VS_SESSION_DIR/$session_name.lock"
+            set --local session_file $VS_SESSION_DIR/$session_name.vim
+
+            if test -f $session_file
                 echo "Cannot overwrite existing session '$session_name'" >&2
                 return 1
             else
-                mkdir --parents (dirname $sessionfile)
-                if mkdir $lockfile &> /dev/null
-                    fish --no-config --command 'trap "rmdir $argv[1]" INT HUP EXIT; $argv[3..] "+silent Obsess $argv[2]" +term' $lockfile $sessionfile $VS_VIM
-                else
-                    echo "Session '$session_name' already running!" >&2
-                    return 1
-                end
+                mkdir --parents (dirname $session_file)
+                __vs_run_session '"+silent Obsess $argv[1]" +term' $session_name $session_file $session_lock $VS_VIM
             end
 
 
