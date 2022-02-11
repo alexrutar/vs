@@ -23,8 +23,8 @@ function vs --argument command session_name new_session_name --description "Mana
     or set --query XDG_DATA_HOME && set --local VS_SESSION_DIR "$XDG_DATA_HOME/vs"
     or set --local VS_SESSION_DIR "$HOME/.local/share/vs"
 
-    set --query VS_VIM
-    or set --local VS_VIM (which vim)
+    set --query VS_VIM_CMD
+    or set --local VS_VIM_CMD (which vim)
 
 
     # normalize session dir
@@ -50,7 +50,7 @@ function vs --argument command session_name new_session_name --description "Mana
             echo 'Variables:'
             echo '       VS_SESSION_DIR      Saved session directory'
             echo '                            Default: ~/.local/share/vs'
-            echo '       VS_VIM              Vim executable'
+            echo '       VS_VIM_CMD          Vim executable'
             echo "                            Default:" (which vim)
 
 
@@ -68,7 +68,7 @@ function vs --argument command session_name new_session_name --description "Mana
             set --local session_file "$VS_SESSION_DIR/$session_name.vim"
 
             if test -f $session_file
-                __vs_run_session '-S $argv[1]' $session_name $session_file $session_lock $VS_VIM
+                __vs_run_session '-S $argv[1]' $session_name $session_file $session_lock $VS_VIM_CMD
             else
                 echo "Could not find session '$session_name'" >&2
                 return 1
@@ -84,7 +84,7 @@ function vs --argument command session_name new_session_name --description "Mana
                 return 1
             else
                 mkdir --parents (dirname $session_file)
-                __vs_run_session '"+silent Obsess $argv[1]" +term' $session_name $session_file $session_lock $VS_VIM
+                __vs_run_session '"+silent Obsess $argv[1]" +term' $session_name $session_file $session_lock $VS_VIM_CMD
             end
 
 

@@ -37,8 +37,8 @@ For example, I personally like to
 ```
 set -x VS_SESSION_DIR "$XDG_DATA_HOME/nvim/sessions"
 ```
-You can also specify the Vim executable with `VS_VIM`, along with additional options.
+You can also specify the Vim executable with `VS_VIM_CMD`, along with additional options.
 For instance, if you want to use Neovim installed into `/usr/local` in verbose mode, you would
 ```
-set -x VS_VIM /usr/local/bin/nvim -V
+set -x VS_VIM_CMD /usr/local/bin/nvim -V
 ```
