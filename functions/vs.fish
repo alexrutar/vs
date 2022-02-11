@@ -2,9 +2,11 @@ function __vs_list_sessions --argument session_dir
     fd --extension vim --hidden --no-ignore --base-directory $session_dir --exec echo {.}
 end
 
+
 function __vs_list_session_dirs --argument session_dir
     fd --type d --hidden --no-ignore --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
 end
+
 
 function __vs_run_session --argument vim_cmd_args session_name session_file session_lock
     if mkdir $session_lock &> /dev/null
@@ -15,8 +17,9 @@ function __vs_run_session --argument vim_cmd_args session_name session_file sess
     end
 end
 
+
 function vs --argument command session_name new_session_name --description "Manage vim session files"
-    set --local vs_version 0.5
+    set --local vs_version 0.6
 
     # establish defaults
     set --query VS_SESSION_DIR
