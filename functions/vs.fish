@@ -10,7 +10,7 @@ end
 
 function __vs_run_session --argument vim_cmd_args session_name session_file session_lock
     if mkdir $session_lock &> /dev/null
-        fish --no-config --command 'trap "rmdir $argv[2]" INT TERM EXIT; $argv[3..] '$vim_cmd_args $session_file $session_lock $argv[5..]
+        fish --no-config --command 'trap "rmdir $argv[2]" INT TERM HUP EXIT; $argv[3..] '$vim_cmd_args $session_file $session_lock $argv[5..]
     else
         echo "Session '$session_name' already running!" >&2
         return 1

@@ -6,7 +6,7 @@ Initialize new sessions from the current directory with
 ```
 vs init <session>
 ```
-Open existing sesssions with
+Open existing sessions with
 ```
 vs open <session>
 ```
@@ -41,4 +41,12 @@ You can also specify the Vim executable with `VS_VIM_CMD`, along with additional
 For instance, if you want to use Neovim installed into `/usr/local` in verbose mode, you would
 ```
 set -x VS_VIM_CMD /usr/local/bin/nvim -V
+```
+
+## Features
+VS has a basic lockfile implementation which prevents multiple instances of a given session from running at the same time.
+Sometimes, the state session can be broken (for example, if your shell exits ungracefully).
+To forcefully cleanup lockfiles, run
+```
+vs _cleanup
 ```
