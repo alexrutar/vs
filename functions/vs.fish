@@ -103,7 +103,7 @@ function vs --argument command session_name new_session_name --description "Mana
             else
                 set source $VS_SESSION_DIR/$session_name.vim
                 if test -d $VS_SESSION_DIR/$new_session_name
-                    or string match -e '/' $new_session_name &> /dev/null
+                    or test (string sub -s -1 $new_session_name) = '/'
                     set target $VS_SESSION_DIR/$new_session_name
                     mkdir --parents $target
                 else
