@@ -1,10 +1,19 @@
 function __vs_list_sessions --argument session_dir
-    fd --extension vim --hidden --no-ignore --base-directory $session_dir --exec echo {.}
+    if test -n "$session_dir"
+        and test -d $VS_SESSION_DIR/$session_dir
+        set --function search_opts --search-path $session_dir
+    end
+    fd $search_opts \
+        --extension vim \
+        --hidden \
+        --no-ignore \
+        --base-directory $VS_SESSION_DIR \
+        --exec echo {.}
 end
 
 
 function __vs_list_session_dirs --argument session_dir
-    fd --type d --hidden --no-ignore --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$/\//'
+    fd --type d --hidden --no-ignore --base-directory $session_dir --exclude "*.lock" --strip-cwd-prefix | sed 's/$//'
 end
 
 
@@ -18,20 +27,38 @@ function __vs_run_session --argument vim_cmd_args session_name session_file sess
 end
 
 
+function __vs_rm_session --argument session_name
+    set --function session_lock $VS_SESSION_DIR/$session_name.lock
+    set --function session_file $VS_SESSION_DIR/$session_name.vim
+    if mkdir $session_lock &> /dev/null
+        rm --force $session_file
+        rmdir $session_lock
+    else
+        echo "Could not delete session '$session_name': session already running!" >&2
+        return 1
+    end
+end
+
+
+function __vs_mv --argument source target
+    mv --interactive $source $target
+end
+
+
 function vs --argument command session_name new_session_name --description "Manage vim session files"
-    set --local vs_version 0.6
+    set --function vs_version 0.7
 
     # establish defaults
     set --query VS_SESSION_DIR
-    or set --query XDG_DATA_HOME && set --local VS_SESSION_DIR "$XDG_DATA_HOME/vs"
-    or set --local VS_SESSION_DIR "$HOME/.local/share/vs"
+    or set --query XDG_DATA_HOME && set --function VS_SESSION_DIR "$XDG_DATA_HOME/vs"
+    or set --function VS_SESSION_DIR "$HOME/.local/share/vs"
 
     set --query VS_VIM_CMD
-    or set --local VS_VIM_CMD (which vim)
+    or set --function VS_VIM_CMD (which vim)
 
 
     # normalize session dir
-    set --local VS_SESSION_DIR (string trim --chars '/' --right $VS_SESSION_DIR)
+    set --function VS_SESSION_DIR (string trim --chars '/' --right $VS_SESSION_DIR)
     mkdir -p $VS_SESSION_DIR
 
 
@@ -59,16 +86,21 @@ function vs --argument command session_name new_session_name --description "Mana
 
         case open
             if not test -n "$session_name"
-                set --local fzf_session (__vs_list_sessions $VS_SESSION_DIR | sort | fzf --height 40% --border --tac)
-                if test -n "$fzf_session"
-                    set session_name "$fzf_session"
+                if which fzf &> /dev/null
+                    set --function fzf_session (__vs_list_sessions $VS_SESSION_DIR | sort | fzf --height 40% --border --tac)
+                    if test -n "$fzf_session"
+                        set session_name "$fzf_session"
+                    else
+                        return 0
+                    end
                 else
-                    return 0
+                    echo "Missing session name" >&2
+                    return 1
                 end
             end
 
-            set --local session_lock "$VS_SESSION_DIR/$session_name.lock"
-            set --local session_file "$VS_SESSION_DIR/$session_name.vim"
+            set --function session_lock "$VS_SESSION_DIR/$session_name.lock"
+            set --function session_file "$VS_SESSION_DIR/$session_name.vim"
 
             if test -f $session_file
                 __vs_run_session '-S $argv[1]' $session_name $session_file $session_lock $VS_VIM_CMD
@@ -79,8 +111,8 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case init
-            set --local session_lock "$VS_SESSION_DIR/$session_name.lock"
-            set --local session_file $VS_SESSION_DIR/$session_name.vim
+            set --function session_lock "$VS_SESSION_DIR/$session_name.lock"
+            set --function session_file $VS_SESSION_DIR/$session_name.vim
 
             if test -f $session_file
                 echo "Cannot overwrite existing session '$session_name'" >&2
@@ -92,49 +124,49 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case rename mv
-            set --local source
-            set --local target
-
             # don't mangle directory names
             if test -d $VS_SESSION_DIR/$session_name
-                set source $VS_SESSION_DIR/$session_name
-                set target $VS_SESSION_DIR/$new_session_name
+                set --function source $VS_SESSION_DIR/$session_name
+                set --function target $VS_SESSION_DIR/$new_session_name
                 mkdir --parents $target
             else
-                set source $VS_SESSION_DIR/$session_name.vim
+                set --function source $VS_SESSION_DIR/$session_name.vim
                 if test -d $VS_SESSION_DIR/$new_session_name
                     or test (string sub -s -1 $new_session_name) = '/'
-                    set target $VS_SESSION_DIR/$new_session_name
+                    set --function target $VS_SESSION_DIR/$new_session_name
                     mkdir --parents $target
                 else
-                    set target $VS_SESSION_DIR/$new_session_name.vim
+                    set --function target $VS_SESSION_DIR/$new_session_name.vim
                     mkdir --parents (dirname $target)
                 end
             end
 
-            mv --interactive $source $target
+            mv $source $target
 
 
         case delete rm
-            set --local source
             if test -d $VS_SESSION_DIR/$session_name
-                set source $VS_SESSION_DIR/$session_name
+                __vs_list_sessions $session_name | while read line; __vs_rm_session $line; end
             else
-                set source $VS_SESSION_DIR/$session_name.vim
+                __vs_rm_session $session_name
             end
-            rm --recursive --interactive $source
 
 
         case list ls
             if isatty 1
-                __vs_list_sessions $VS_SESSION_DIR | tree --fromfile . --noreport
+                if which tree &> /dev/null
+                    __vs_list_sessions $session_name | tree --fromfile . --noreport
+                else
+                    __vs_list_sessions $session_name
+                end
             else
-                __vs_list_sessions $VS_SESSION_DIR | sort
+                __vs_list_sessions $session_name | sort
             end
 
 
         case _cleanup
-            fd --extension lock --base-directory $VS_SESSION_DIR --exec rmdir
+            # removing all empty directories also removes lockfiles
+            fd --base-directory $VS_SESSION_DIR --type empty --type directory --exec rmdir
 
 
         case _list_all
