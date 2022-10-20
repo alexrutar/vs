@@ -27,7 +27,7 @@ function __vs_run_session --argument vim_cmd_args session_name session_file sess
 end
 
 
-function __vs_rm_session --argument session_name
+function _vs_delete_session --argument session_name
     set --function session_lock $VS_SESSION_DIR/$session_name.lock
     set --function session_file $VS_SESSION_DIR/$session_name.vim
     if mkdir $session_lock &> /dev/null
@@ -40,7 +40,7 @@ function __vs_rm_session --argument session_name
 end
 
 
-function __vs_mv --argument source target
+function __vs_rename --argument source target
     mv --interactive $source $target
 end
 
@@ -146,9 +146,9 @@ function vs --argument command session_name new_session_name --description "Mana
 
         case delete rm
             if test -d $VS_SESSION_DIR/$session_name
-                __vs_list_sessions $session_name | while read line; __vs_rm_session $line; end
+                __vs_list_sessions $session_name | while read line; _vs_delete_session $line; end
             else
-                __vs_rm_session $session_name
+                _vs_delete_session $session_name
             end
 
 
