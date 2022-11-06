@@ -33,6 +33,8 @@ function __vs_delete_session --argument session_name
     if mkdir $session_lock &> /dev/null
         rm --force $session_file
         rmdir $session_lock
+        # clean up empty directory
+        rmdir --parents --ignore-fail-on-non-empty (path dirname $VS_SESSION_DIR/$session_name)
     else
         echo "Could not delete session '$session_name': session already running!" >&2
         return 1
@@ -51,7 +53,7 @@ function vs --argument command session_name new_session_name --description "Mana
     # establish defaults
     set --query VS_SESSION_DIR
     or set --query XDG_DATA_HOME && set --function VS_SESSION_DIR "$XDG_DATA_HOME/vs"
-    or set --function VS_SESSION_DIR "$HOME/.local/share/vs"
+    or set --function VS_SESSION_DIR "$HOME/.local/share/vs/sessions"
 
     set --query VS_VIM_CMD
     or set --function VS_VIM_CMD (which vim)
@@ -79,9 +81,9 @@ function vs --argument command session_name new_session_name --description "Mana
             echo '       -h | --help         Print this help message'
             echo 'Variables:'
             echo '       VS_SESSION_DIR      Saved session directory'
-            echo '                            Default: ~/.local/share/vs'
+            echo '                            Default: ~/.local/share/vs/sessions'
             echo '       VS_VIM_CMD          Vim executable'
-            echo "                            Default:" (which vim)
+            echo '                            Default:' (which vim)
 
 
         case open
@@ -179,7 +181,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case _cleanup
-            # removing all empty directories also removes lockfiles
+            # lockfiles are empty directories
             fd --base-directory $VS_SESSION_DIR --type empty --type directory --exec rmdir
 
 

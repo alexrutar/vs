@@ -32,7 +32,7 @@ You also need [Obsession.vim](https://github.com/tpope/vim-obsession) accessible
 
 ### Configuration
 You can select where you want the session files to be saved with the variable `VS_SESSION_DIR`.
-It defaults to `$XDG_DATA_HOME/vs`.
+It defaults to `$XDG_DATA_HOME/vs/sessions`.
 
 For example, I personally like to
 ```
