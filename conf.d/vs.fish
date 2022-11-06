@@ -11,4 +11,6 @@ function _vs_uninstall --on-event vs_uninstall
     functions --erase __vs_list_sessions
     functions --erase __vs_list_session_dirs
     functions --erase __vs_run_session
+    functions --erase __vs_delete_session
+    functions --erase __vs_rename
 end

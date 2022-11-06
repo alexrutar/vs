@@ -27,7 +27,7 @@ function __vs_run_session --argument vim_cmd_args session_name session_file sess
 end
 
 
-function _vs_delete_session --argument session_name
+function __vs_delete_session --argument session_name
     set --function session_lock $VS_SESSION_DIR/$session_name.lock
     set --function session_file $VS_SESSION_DIR/$session_name.vim
     if mkdir $session_lock &> /dev/null
@@ -124,43 +124,57 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case rename mv
-            # don't mangle directory names
             if test -d $VS_SESSION_DIR/$session_name
+
+                # source and target are both directories
                 set --function source $VS_SESSION_DIR/$session_name
                 set --function target $VS_SESSION_DIR/$new_session_name
+                if test -e $target/(path basename $session_name)
+                    echo "Cannot overwrite existing file!" >&2
+                    return 1
+                end
                 mkdir --parents $target
             else
                 set --function source $VS_SESSION_DIR/$session_name.vim
                 if test -d $VS_SESSION_DIR/$new_session_name
                     or test (string sub -s -1 $new_session_name) = '/'
+
+                    # source is a file, target is a directory
                     set --function target $VS_SESSION_DIR/$new_session_name
+                    if test -e $target/(path basename $session_name).vim
+                        echo "Cannot overwrite existing file!" >&2
+                        return 1
+                    end
                     mkdir --parents $target
                 else
+
+                    # source and target are both files
                     set --function target $VS_SESSION_DIR/$new_session_name.vim
+                    if test -e $target
+                        echo "Cannot overwrite existing file!" >&2
+                        return 1
+                    end
                     mkdir --parents (dirname $target)
                 end
             end
 
-            mv $source $target
+            __vs_rename $source $target
 
 
         case delete rm
             if test -d $VS_SESSION_DIR/$session_name
-                __vs_list_sessions $session_name | while read line; _vs_delete_session $line; end
+                __vs_list_sessions $session_name | while read line; __vs_delete_session $line; end
             else
-                _vs_delete_session $session_name
+                __vs_delete_session $session_name
             end
 
 
         case list ls
             if isatty 1
-                if which tree &> /dev/null
-                    __vs_list_sessions $session_name | tree --fromfile . --noreport
-                else
-                    __vs_list_sessions $session_name
-                end
+                and which tree &> /dev/null
+                __vs_list_sessions $session_name | tree --fromfile . --noreport
             else
-                __vs_list_sessions $session_name | sort
+                __vs_list_sessions $session_name
             end
 
 
