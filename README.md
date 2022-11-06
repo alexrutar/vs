@@ -16,6 +16,7 @@ Get more information with
 ```
 vs -h
 ```
+
 ## Installation
 If you have something like [fisher](https://github.com/jorgebucaran/fisher), you can
 ```
@@ -44,6 +45,18 @@ set -x VS_VIM_CMD /usr/local/bin/nvim -V
 ```
 
 ## Features
+### Basic Session Management
+You can delete and rename existing session files with `vs rename` and `vs delete`.
+List available sessions with `vs list`: if STDOUT is a TTY, then this will display the heirarchy using `tree`; otherwise, the output will be a list of session names.
+
+### Interactive Session Browsing
+If you have [fzf](https://github.com/junegunn/fzf) installed on your device, running
+```
+vs open
+```
+will pipe the list of sessions into `fzf`, which you can use to filter and choose an option.
+
+### Lockfiles and cleanup
 VS has a basic lockfile implementation which prevents multiple instances of a given session from running at the same time.
 Sometimes, the state session can be broken (for example, if your shell exits ungracefully).
 To forcefully cleanup lockfiles, run
