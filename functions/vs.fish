@@ -1,3 +1,10 @@
+function __vs_FAIL --argument message
+    set_color red; echo -n "Error: " >&2; set_color normal
+    echo $message >&2
+    return 1
+end
+
+
 function __vs_list_sessions --argument session_dir
     if test -n "$session_dir"
         and test -d $VS_SESSION_DIR/$session_dir
@@ -21,7 +28,7 @@ function __vs_run_session --argument vim_cmd_args session_name session_file sess
     if mkdir $session_lock &> /dev/null
         fish --no-config --command 'trap "rmdir $argv[2]" INT TERM HUP EXIT; $argv[3..] '$vim_cmd_args $session_file $session_lock $argv[5..]
     else
-        echo "Session '$session_name' already running!" >&2
+        __vs_FAIL "Session '$session_name' already running!"
         return 1
     end
 end
@@ -36,7 +43,7 @@ function __vs_delete_session --argument session_name
         # clean up empty directory
         rmdir --parents --ignore-fail-on-non-empty (path dirname $VS_SESSION_DIR/$session_name)
     else
-        echo "Could not delete session '$session_name': session already running!" >&2
+        __vs_FAIL "Could not delete session '$session_name': session already running!"
         return 1
     end
 end
@@ -71,19 +78,22 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case '' -h --help help
-            echo 'Usage: vs open [SESSION]   Open the session'
-            echo '       vs init SESSION     Start up a new session'
-            echo '       vs delete SESSION   Delete the session'
-            echo '       vs rename OLD NEW   Rename the session'
-            echo '       vs list             List available sessions'
-            echo 'Options:'
-            echo '       -v | --version      Print version'
-            echo '       -h | --help         Print this help message'
-            echo 'Variables:'
-            echo '       VS_SESSION_DIR      Saved session directory'
-            echo '                            Default: ~/.local/share/vs/sessions'
-            echo '       VS_VIM_CMD          Vim executable'
-            echo '                            Default:' (which vim)
+            set_color cyan; echo 'Usage:'; set_color normal
+            echo '    vs open [SESSION]   Open the session'
+            echo '    vs init SESSION     Start a new session'
+            echo '    vs delete SESSION   Delete the session'
+            echo '    vs rename OLD NEW   Rename the session'
+            echo '    vs list             List available sessions'
+            echo
+            set_color cyan; echo 'Options:'; set_color normal
+            echo '    -h/--help           Print this help message'
+            echo '    -V/--version        Print version'
+            echo
+            set_color cyan; echo 'Variables:'; set_color normal
+            echo '    VS_SESSION_DIR      Saved session directory'
+            echo '                         Default: ~/.local/share/vs/sessions'
+            echo '    VS_VIM_CMD          Vim executable'
+            echo '                         Default:' (which vim)
 
 
         case open
@@ -96,7 +106,7 @@ function vs --argument command session_name new_session_name --description "Mana
                         return 0
                     end
                 else
-                    echo "Missing session name" >&2
+                    __vs_FAIL "Missing session name"
                     return 1
                 end
             end
@@ -107,7 +117,7 @@ function vs --argument command session_name new_session_name --description "Mana
             if test -f $session_file
                 __vs_run_session '-S $argv[1]' $session_name $session_file $session_lock $VS_VIM_CMD
             else
-                echo "Could not find session '$session_name'" >&2
+                __vs_FAIL "Could not find session '$session_name'"
                 return 1
             end
 
@@ -117,7 +127,7 @@ function vs --argument command session_name new_session_name --description "Mana
             set --function session_file $VS_SESSION_DIR/$session_name.vim
 
             if test -f $session_file
-                echo "Cannot overwrite existing session '$session_name'" >&2
+                __vs_FAIL "Cannot overwrite existing session '$session_name'"
                 return 1
             else
                 mkdir --parents (dirname $session_file)
@@ -132,7 +142,7 @@ function vs --argument command session_name new_session_name --description "Mana
                 set --function source $VS_SESSION_DIR/$session_name
                 set --function target $VS_SESSION_DIR/$new_session_name
                 if test -e $target/(path basename $session_name)
-                    echo "Cannot overwrite existing file!" >&2
+                    __vs_FAIL "Cannot overwrite existing file!"
                     return 1
                 end
                 mkdir --parents $target
@@ -144,7 +154,7 @@ function vs --argument command session_name new_session_name --description "Mana
                     # source is a file, target is a directory
                     set --function target $VS_SESSION_DIR/$new_session_name
                     if test -e $target/(path basename $session_name).vim
-                        echo "Cannot overwrite existing file!" >&2
+                        __vs_FAIL "Cannot overwrite existing file!"
                         return 1
                     end
                     mkdir --parents $target
@@ -153,7 +163,7 @@ function vs --argument command session_name new_session_name --description "Mana
                     # source and target are both files
                     set --function target $VS_SESSION_DIR/$new_session_name.vim
                     if test -e $target
-                        echo "Cannot overwrite existing file!" >&2
+                        __vs_FAIL "Cannot overwrite existing file!"
                         return 1
                     end
                     mkdir --parents (dirname $target)
@@ -173,7 +183,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
         case list ls
             if isatty 1
-                and which tree &> /dev/null
+                and type -q tree
                 __vs_list_sessions $session_name | tree --fromfile . --noreport
             else
                 __vs_list_sessions $session_name
@@ -190,7 +200,7 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case '*'
-            echo "vs: Unknown command: \"$command\"" >&2
+            __vs_FAIL "Unknown command: '$command'"
             return 1
     end
 end
