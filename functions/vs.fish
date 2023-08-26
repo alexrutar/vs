@@ -55,7 +55,7 @@ end
 
 
 function vs --argument command session_name new_session_name --description "Manage vim session files"
-    set --function vs_version 0.7
+    set --function vs_version 1.0
 
     # establish defaults
     set --query VS_SESSION_DIR
