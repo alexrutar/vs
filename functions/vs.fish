@@ -54,6 +54,26 @@ function __vs_rename --argument source target
 end
 
 
+function __vs_echo_help
+    set_color cyan; echo 'Usage:'; set_color normal
+    echo '    vs open [SESSION]   Open the session'
+    echo '    vs init SESSION     Start a new session'
+    echo '    vs delete SESSION   Delete the session'
+    echo '    vs rename OLD NEW   Rename the session'
+    echo '    vs list             List available sessions'
+    echo
+    set_color cyan; echo 'Options:'; set_color normal
+    echo '    -h/--help           Print this help message'
+    echo '    -V/--version        Print version'
+    echo
+    set_color cyan; echo 'Variables:'; set_color normal
+    echo '    VS_SESSION_DIR      Saved session directory'
+    echo '                         Default: ~/.local/share/vs/sessions'
+    echo '    VS_VIM_CMD          Vim executable'
+    echo '                         Default:' (which vim)
+end
+
+
 function vs --argument command session_name new_session_name --description "Manage vim session files"
     set --function vs_version 1.0
 
@@ -70,32 +90,38 @@ function vs --argument command session_name new_session_name --description "Mana
     set --function VS_SESSION_DIR (string trim --chars '/' --right $VS_SESSION_DIR)
     mkdir -p $VS_SESSION_DIR
 
+    # parse options
+    set --local options (fish_opt --short=V --long=version)
+    set --local options $options (fish_opt --short=h --long=help)
+
+    if not argparse $options -- $argv
+        __vs_echo_help >&2
+        return 1
+    end
+
+    set --local command $argv[1]
+    set --local session_name $argv[2]
+    set --local new_session_name $argv[3]
+
+    if set --query _flag_help
+        __vs_echo_help
+        return 0
+    end
+
+    if set --query _flag_version
+        echo "vs (version $vs_version)"
+        return 0
+    end
+
+    if test -z "$command"
+        echo "tpr: missing subcommand" >&2
+        __vs_echo_help >&2
+        return 1
+    end
+
 
     # main argument processing
     switch $command
-        case -v --version
-            echo "vs, version $vs_version"
-
-
-        case '' -h --help help
-            set_color cyan; echo 'Usage:'; set_color normal
-            echo '    vs open [SESSION]   Open the session'
-            echo '    vs init SESSION     Start a new session'
-            echo '    vs delete SESSION   Delete the session'
-            echo '    vs rename OLD NEW   Rename the session'
-            echo '    vs list             List available sessions'
-            echo
-            set_color cyan; echo 'Options:'; set_color normal
-            echo '    -h/--help           Print this help message'
-            echo '    -V/--version        Print version'
-            echo
-            set_color cyan; echo 'Variables:'; set_color normal
-            echo '    VS_SESSION_DIR      Saved session directory'
-            echo '                         Default: ~/.local/share/vs/sessions'
-            echo '    VS_VIM_CMD          Vim executable'
-            echo '                         Default:' (which vim)
-
-
         case open
             if not test -n "$session_name"
                 if which fzf &> /dev/null
@@ -190,7 +216,7 @@ function vs --argument command session_name new_session_name --description "Mana
             end
 
 
-        case _cleanup
+        case delete-lockfiles
             # lockfiles are empty directories
             fd --base-directory $VS_SESSION_DIR --type empty --type directory --exec rmdir
 
