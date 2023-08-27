@@ -64,7 +64,7 @@ function __vs_echo_help
     echo
     set_color cyan; echo 'Options:'; set_color normal
     echo '    -h/--help           Print this help message'
-    echo '    -V/--version        Print version'
+    echo '    -v/--version        Print version'
     echo
     set_color cyan; echo 'Variables:'; set_color normal
     echo '    VS_SESSION_DIR      Saved session directory'
@@ -91,7 +91,7 @@ function vs --argument command session_name new_session_name --description "Mana
     mkdir -p $VS_SESSION_DIR
 
     # parse options
-    set --local options (fish_opt --short=V --long=version)
+    set --local options (fish_opt --short=v --long=version)
     set --local options $options (fish_opt --short=h --long=help)
 
     if not argparse $options -- $argv
