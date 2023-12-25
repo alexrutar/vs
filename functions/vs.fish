@@ -61,6 +61,7 @@ function __vs_echo_help
     echo '    vs delete SESSION   Delete the session'
     echo '    vs rename OLD NEW   Rename the session'
     echo '    vs list             List available sessions'
+    echo '    vs recover          Recover from failed cleanup'
     echo
     set_color cyan; echo 'Options:'; set_color normal
     echo '    -h/--help           Print this help message'
@@ -216,7 +217,7 @@ function vs --argument command session_name new_session_name --description "Mana
             end
 
 
-        case delete-lockfiles
+        case recover
             # lockfiles are empty directories
             fd --base-directory $VS_SESSION_DIR --type empty --type directory --exec rmdir
 
