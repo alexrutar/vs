@@ -1,5 +1,7 @@
 function __vs_FAIL --argument message
-    set_color red; echo -n "Error: " >&2; set_color normal
+    set_color red
+    echo -n "Error: " >&2
+    set_color normal
     echo $message >&2
     return 1
 end
@@ -25,7 +27,7 @@ end
 
 
 function __vs_run_session --argument vim_cmd_args session_name session_file session_lock
-    if mkdir $session_lock &> /dev/null
+    if mkdir $session_lock &>/dev/null
         fish --no-config --command 'trap "rmdir $argv[2]" INT TERM HUP EXIT; $argv[3..] '$vim_cmd_args $session_file $session_lock $argv[5..]
     else
         __vs_FAIL "Session '$session_name' already running!"
@@ -37,7 +39,7 @@ end
 function __vs_delete_session --argument session_name
     set --function session_lock $VS_SESSION_DIR/$session_name.lock
     set --function session_file $VS_SESSION_DIR/$session_name.vim
-    if mkdir $session_lock &> /dev/null
+    if mkdir $session_lock &>/dev/null
         rm --force $session_file
         rmdir $session_lock
         # clean up empty directory
@@ -55,7 +57,9 @@ end
 
 
 function __vs_echo_help
-    set_color cyan; echo 'Usage:'; set_color normal
+    set_color cyan
+    echo 'Usage:'
+    set_color normal
     echo '    vs open [SESSION]   Open the session'
     echo '    vs init SESSION     Start a new session'
     echo '    vs delete SESSION   Delete the session'
@@ -63,11 +67,15 @@ function __vs_echo_help
     echo '    vs list             List available sessions'
     echo '    vs recover          Cleanup crashed sessions'
     echo
-    set_color cyan; echo 'Options:'; set_color normal
+    set_color cyan
+    echo 'Options:'
+    set_color normal
     echo '    -h/--help           Print this help message'
     echo '    -v/--version        Print version'
     echo
-    set_color cyan; echo 'Variables:'; set_color normal
+    set_color cyan
+    echo 'Variables:'
+    set_color normal
     echo '    VS_SESSION_DIR      Saved session directory'
     echo '                         Default: ~/.local/share/vs/sessions'
     echo '    VS_VIM_CMD          Vim executable'
@@ -125,7 +133,7 @@ function vs --argument command session_name new_session_name --description "Mana
     switch $command
         case open
             if not test -n "$session_name"
-                if which fzf &> /dev/null
+                if which fzf &>/dev/null
                     set --function fzf_session (__vs_list_sessions $VS_SESSION_DIR | sort | fzf --height 40% --border --tac)
                     if test -n "$fzf_session"
                         set session_name "$fzf_session"
@@ -176,7 +184,7 @@ function vs --argument command session_name new_session_name --description "Mana
             else
                 set --function source $VS_SESSION_DIR/$session_name.vim
                 if test -d $VS_SESSION_DIR/$new_session_name
-                    or test (string sub -s -1 $new_session_name) = '/'
+                    or test (string sub -s -1 $new_session_name) = /
 
                     # source is a file, target is a directory
                     set --function target $VS_SESSION_DIR/$new_session_name
@@ -202,7 +210,9 @@ function vs --argument command session_name new_session_name --description "Mana
 
         case delete rm
             if test -d $VS_SESSION_DIR/$session_name
-                __vs_list_sessions $session_name | while read line; __vs_delete_session $line; end
+                __vs_list_sessions $session_name | while read line
+                    __vs_delete_session $line
+                end
             else
                 __vs_delete_session $session_name
             end
@@ -223,7 +233,10 @@ function vs --argument command session_name new_session_name --description "Mana
 
 
         case _list_all
-            begin; __vs_list_sessions $VS_SESSION_DIR; __vs_list_session_dirs $VS_SESSION_DIR; end | sort
+            begin
+                __vs_list_sessions $VS_SESSION_DIR
+                __vs_list_session_dirs $VS_SESSION_DIR
+            end | sort
 
 
         case '*'

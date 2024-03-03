@@ -12,5 +12,5 @@ complete -c vs -n "not __fish_seen_subcommand_from $vs_subcommands" -a delete --
 complete -c vs -n "not __fish_seen_subcommand_from $vs_subcommands" -a list --description "List available sessions"
 complete -c vs -n "not __fish_seen_subcommand_from $vs_subcommands" -a recover --description "Cleanup crashed sessions"
 
-complete -c vs -n "__fish_seen_subcommand_from open" -a "(vs list)" 
+complete -c vs -n "__fish_seen_subcommand_from open" -a "(vs list)"
 complete -c vs -n "__fish_seen_subcommand_from init rename mv delete rm" -a "(vs _list_all)"
