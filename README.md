@@ -60,7 +60,7 @@ will pipe the list of sessions into `fzf`, which you can use to filter and choos
 ### Lockfiles and cleanup
 VS has a basic lockfile implementation which prevents multiple instances of a given session from running at the same time.
 Sometimes, lockfiles are not removed even when there is no running instance (for example, if your shell exits ungracefully).
-To forcefully cleanup lockfiles, run
+To fix this (after ensuring that there are no running instances!), run
 ```
-vs delete-lockfiles
+vs recover
 ```
